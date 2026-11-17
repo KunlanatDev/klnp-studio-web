@@ -76,4 +76,47 @@ describe('useEditorDocumentStore', () => {
     expect(useEditorDocumentStore.getState().document?.nodes[childId]).toBeUndefined();
     expect(useEditorDocumentStore.getState().document?.nodes[containerId].children).not.toContain(childId);
   });
+
+  it('draws freeform shapes, groups them into local space, and converts group to Input/Button component', () => {
+    useEditorDocumentStore.getState().initializeEmptyDocument('proj_1', 'page_1', 'Login');
+    useEditorDocumentStore.getState().clearCanvas();
+    expect(useEditorDocumentStore.getState().document?.rootNodeIds).toHaveLength(0);
+
+    // 1. Draw a freeform rectangle and a text node
+    const rectId = useEditorDocumentStore
+      .getState()
+      .addNode('rect', null, { x: 40, y: 100, width: 260, height: 48 });
+    const textId = useEditorDocumentStore
+      .getState()
+      .addNode('text', null, { x: 56, y: 114, width: 200, height: 20 }, { text: 'Enter email' });
+
+    // 2. Select both and Group them (Cmd+G)
+    useEditorDocumentStore.getState().selectNodes([rectId, textId]);
+    const groupId = useEditorDocumentStore.getState().groupSelectedNodes('Custom Email Group');
+    expect(groupId).toBeTruthy();
+
+    const docAfterGroup = useEditorDocumentStore.getState().document!;
+    const groupNode = docAfterGroup.nodes[groupId!];
+    expect(groupNode.type).toBe('group');
+    expect(groupNode.geometry).toEqual({ x: 40, y: 100, width: 260, height: 48 });
+    // Child coordinates converted to group-local space
+    expect(docAfterGroup.nodes[rectId].geometry?.x).toBe(0);
+    expect(docAfterGroup.nodes[rectId].geometry?.y).toBe(0);
+    expect(docAfterGroup.nodes[textId].geometry?.x).toBe(16);
+    expect(docAfterGroup.nodes[textId].geometry?.y).toBe(14);
+
+    // 3. Convert the freeform group into an Input component
+    useEditorDocumentStore.getState().convertToComponent(groupId!, 'input', { fieldKey: 'email' });
+    const converted = useEditorDocumentStore.getState().document!.nodes[groupId!];
+    expect(converted.componentRef?.builtinType).toBe('input');
+    expect(converted.properties.fieldKey).toBe('email');
+    expect(converted.properties.placeholder).toBe('Enter email');
+
+    // 4. Ungroup restores world coordinates
+    useEditorDocumentStore.getState().ungroupNode(groupId!);
+    const docAfterUngroup = useEditorDocumentStore.getState().document!;
+    expect(docAfterUngroup.nodes[groupId!]).toBeUndefined();
+    expect(docAfterUngroup.nodes[textId].geometry?.x).toBe(56);
+    expect(docAfterUngroup.nodes[textId].geometry?.y).toBe(114);
+  });
 });

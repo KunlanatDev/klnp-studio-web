@@ -6,6 +6,82 @@ export interface ComponentMeta extends ComponentDefinition {
 }
 
 export const BUILTIN_COMPONENTS: ComponentMeta[] = [
+  // Freeform Shapes & Vector Primitives
+  {
+    componentId: 'builtin.rect',
+    type: 'rect',
+    version: '1.0.0',
+    displayName: 'Rectangle',
+    category: 'basic',
+    description: 'Freeform rectangle shape (Shortcut: R)',
+    iconName: 'CropSquareRounded',
+    defaultGeometry: { width: 280, height: 48 },
+    defaultStyle: {
+      backgroundColor: '#f8fafc',
+      borderWidth: 1.5,
+      borderColor: '#cbd5e1',
+      borderStyle: 'solid',
+      borderRadius: 10,
+    },
+    defaultProperties: {},
+  },
+  {
+    componentId: 'builtin.ellipse',
+    type: 'ellipse',
+    version: '1.0.0',
+    displayName: 'Ellipse / Circle',
+    category: 'basic',
+    description: 'Freeform circle or oval shape (Shortcut: O)',
+    iconName: 'PanoramaFishEyeRounded',
+    defaultGeometry: { width: 64, height: 64 },
+    defaultStyle: {
+      backgroundColor: '#dbeafe',
+      borderWidth: 2,
+      borderColor: '#2563eb',
+      borderStyle: 'solid',
+      borderRadius: 999,
+    },
+    defaultProperties: {},
+  },
+  {
+    componentId: 'builtin.line',
+    type: 'line',
+    version: '1.0.0',
+    displayName: 'Line',
+    category: 'basic',
+    description: 'Freeform vector line segment (Shortcut: L)',
+    iconName: 'HorizontalRuleRounded',
+    defaultGeometry: { width: 240, height: 4 },
+    defaultStyle: {
+      borderColor: '#94a3b8',
+      borderWidth: 2,
+    },
+    defaultProperties: {},
+  },
+  {
+    componentId: 'builtin.path',
+    type: 'path',
+    version: '1.0.0',
+    displayName: 'Vector Path',
+    category: 'basic',
+    description: 'Freeform multi-point vector path (Shortcut: P)',
+    iconName: 'GestureRounded',
+    defaultGeometry: { width: 120, height: 80 },
+    defaultStyle: {
+      backgroundColor: 'rgba(37, 99, 235, 0.12)',
+      borderColor: '#2563eb',
+      borderWidth: 2,
+    },
+    defaultProperties: {
+      closed: true,
+      points: [
+        { x: 60, y: 4 },
+        { x: 116, y: 76 },
+        { x: 4, y: 76 },
+      ],
+    },
+  },
+
   // Layout components
   {
     componentId: 'builtin.container',
@@ -15,13 +91,13 @@ export const BUILTIN_COMPONENTS: ComponentMeta[] = [
     category: 'layout',
     description: 'Flexible box container for grouping and layout',
     iconName: 'ViewQuiltRounded',
-    defaultGeometry: { width: 300, height: 200 },
+    defaultGeometry: { width: 320, height: 220 },
     defaultStyle: {
       backgroundColor: '#ffffff',
       borderWidth: 1,
       borderColor: '#e2e8f0',
       borderStyle: 'solid',
-      borderRadius: 8,
+      borderRadius: 12,
       paddingTop: 16,
       paddingRight: 16,
       paddingBottom: 16,
@@ -35,9 +111,9 @@ export const BUILTIN_COMPONENTS: ComponentMeta[] = [
     version: '1.0.0',
     displayName: 'Group',
     category: 'layout',
-    description: 'Logical grouping container without visual borders',
+    description: 'Freeform group that can be converted into a Component (Cmd+G)',
     iconName: 'FolderOutlined',
-    defaultGeometry: { width: 250, height: 150 },
+    defaultGeometry: { width: 280, height: 52 },
     defaultStyle: {},
     defaultProperties: {},
   },
@@ -77,17 +153,17 @@ export const BUILTIN_COMPONENTS: ComponentMeta[] = [
     version: '1.0.0',
     displayName: 'Text',
     category: 'basic',
-    description: 'Typography element for headings and paragraphs',
+    description: 'Typography element for headings and labels (Shortcut: T)',
     iconName: 'TextFieldsRounded',
-    defaultGeometry: { width: 180, height: 36 },
+    defaultGeometry: { width: 200, height: 32 },
     defaultStyle: {
-      color: '#1e293b',
+      color: '#0f172a',
       fontSize: 16,
-      fontWeight: '400',
-      lineHeight: 1.5,
+      fontWeight: '500',
+      lineHeight: 1.4,
     },
     defaultProperties: {
-      text: 'Heading or text content',
+      text: 'Text Label',
     },
   },
   {
@@ -98,18 +174,19 @@ export const BUILTIN_COMPONENTS: ComponentMeta[] = [
     category: 'action',
     description: 'Interactive clickable button element',
     iconName: 'SmartButtonRounded',
-    defaultGeometry: { width: 140, height: 42 },
+    defaultGeometry: { width: 280, height: 48 },
     defaultStyle: {
       backgroundColor: '#2563eb',
       color: '#ffffff',
-      borderRadius: 8,
-      fontSize: 14,
+      borderRadius: 10,
+      fontSize: 15,
       fontWeight: '600',
       textAlign: 'center',
     },
     defaultProperties: {
-      label: 'Click me',
+      label: 'Sign In',
       variant: 'contained',
+      actionType: 'validate_login',
     },
   },
   {
@@ -120,9 +197,9 @@ export const BUILTIN_COMPONENTS: ComponentMeta[] = [
     category: 'media',
     description: 'Visual image element with fit and aspect ratio',
     iconName: 'ImageRounded',
-    defaultGeometry: { width: 240, height: 160 },
+    defaultGeometry: { width: 240, height: 140 },
     defaultStyle: {
-      borderRadius: 8,
+      borderRadius: 10,
       overflow: 'hidden',
     },
     defaultProperties: {
@@ -158,21 +235,23 @@ export const BUILTIN_COMPONENTS: ComponentMeta[] = [
     category: 'input',
     description: 'Single-line text input field',
     iconName: 'InputRounded',
-    defaultGeometry: { width: 260, height: 44 },
+    defaultGeometry: { width: 280, height: 48 },
     defaultStyle: {
       backgroundColor: '#f8fafc',
       borderWidth: 1,
       borderColor: '#cbd5e1',
       borderStyle: 'solid',
-      borderRadius: 8,
+      borderRadius: 10,
       paddingLeft: 12,
       paddingRight: 12,
       fontSize: 14,
-      color: '#1e293b',
+      color: '#0f172a',
     },
     defaultProperties: {
-      placeholder: 'Enter text here...',
-      inputType: 'text',
+      placeholder: 'Enter email...',
+      inputType: 'email',
+      fieldKey: 'email',
+      required: true,
     },
   },
   {
@@ -189,7 +268,7 @@ export const BUILTIN_COMPONENTS: ComponentMeta[] = [
       color: '#334155',
     },
     defaultProperties: {
-      label: 'Checkbox option',
+      label: 'Remember me',
       checked: false,
     },
   },
@@ -242,4 +321,3 @@ export const BUILTIN_COMPONENTS: ComponentMeta[] = [
 export const COMPONENT_MAP = new Map<string, ComponentMeta>(
   BUILTIN_COMPONENTS.map((c) => [c.type, c])
 );
-

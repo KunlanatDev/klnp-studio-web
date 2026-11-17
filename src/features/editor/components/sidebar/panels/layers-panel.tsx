@@ -23,6 +23,11 @@ import ImageRoundedIcon from '@mui/icons-material/ImageRounded';
 import InputRoundedIcon from '@mui/icons-material/InputRounded';
 import WidgetsRoundedIcon from '@mui/icons-material/WidgetsRounded';
 
+import CropSquareRoundedIcon from '@mui/icons-material/CropSquareRounded';
+import PanoramaFishEyeRoundedIcon from '@mui/icons-material/PanoramaFishEyeRounded';
+import HorizontalRuleRoundedIcon from '@mui/icons-material/HorizontalRuleRounded';
+import GestureRoundedIcon from '@mui/icons-material/GestureRounded';
+
 import { useEditorDocumentStore } from '../../../stores/editor-document.store';
 import type { KLNPNode } from '@klnp/contracts';
 
@@ -31,6 +36,14 @@ function getNodeIcon(type: string) {
     case 'container':
     case 'group':
       return <ViewQuiltRoundedIcon fontSize="small" />;
+    case 'rect':
+      return <CropSquareRoundedIcon fontSize="small" />;
+    case 'ellipse':
+      return <PanoramaFishEyeRoundedIcon fontSize="small" />;
+    case 'line':
+      return <HorizontalRuleRoundedIcon fontSize="small" />;
+    case 'path':
+      return <GestureRoundedIcon fontSize="small" />;
     case 'text':
       return <TextFieldsRoundedIcon fontSize="small" />;
     case 'button':

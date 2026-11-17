@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import { EditorToolbar } from '../toolbar/editor-toolbar';
 import { EditorSidebar } from '../sidebar/editor-sidebar';
 import { EditorCanvas } from '../canvas/editor-canvas';
+import { LiveSimulator } from '../simulator/live-simulator';
 import { EditorInspector } from '../inspector/editor-inspector';
 import { EditorStatusBar } from '../statusbar/editor-status-bar';
 import { Page } from '../../../pages/api/page-api';
@@ -13,6 +14,7 @@ interface EditorLayoutProps {
   currentPageId?: string;
   pages?: Page[];
   onSelectPage?: (pageId: string) => void;
+  onSaveNow?: () => void;
 }
 
 export function EditorLayout({
@@ -22,6 +24,7 @@ export function EditorLayout({
   currentPageId,
   pages,
   onSelectPage,
+  onSaveNow,
 }: EditorLayoutProps) {
   return (
     <Box
@@ -42,9 +45,10 @@ export function EditorLayout({
         currentPageId={currentPageId}
         pages={pages}
         onSelectPage={onSelectPage}
+        onSaveNow={onSaveNow}
       />
 
-      {/* 2. Main Middle Workspace: Left Sidebar + Canvas + Right Inspector */}
+      {/* 2. Main Middle Workspace: Left Sidebar + Freeform Canvas + Split Live Simulator + Right Inspector */}
       <Box
         sx={{
           flex: 1,
@@ -62,6 +66,8 @@ export function EditorLayout({
 
         <EditorCanvas />
 
+        <LiveSimulator />
+
         <EditorInspector />
       </Box>
 
@@ -70,4 +76,3 @@ export function EditorLayout({
     </Box>
   );
 }
-

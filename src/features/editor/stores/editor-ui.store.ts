@@ -14,7 +14,16 @@ export const DEVICE_PRESETS: Record<DeviceType, DeviceDimension> = {
   desktop: { width: 1280, height: 800 },
 };
 
-export type ActiveTool = 'select' | 'pan' | 'insert';
+export type ActiveTool =
+  | 'select'
+  | 'pan'
+  | 'insert'
+  | 'rect'
+  | 'ellipse'
+  | 'line'
+  | 'pen'
+  | 'text';
+
 export type LeftSidebarTab = 'components' | 'layers' | 'pages' | 'assets';
 export type InspectorTab = 'properties' | 'style' | 'interactions';
 export type SaveStatus = 'saved' | 'saving' | 'unsaved' | 'error';
@@ -33,6 +42,8 @@ export interface EditorUIState {
 
   rightSidebarOpen: boolean;
   activeInspectorTab: InspectorTab;
+
+  simulatorOpen: boolean;
 
   cursorPosition: { x: number; y: number };
   saveStatus: SaveStatus;
@@ -58,6 +69,9 @@ export interface EditorUIState {
   toggleRightSidebar: () => void;
   setActiveInspectorTab: (tab: InspectorTab) => void;
 
+  setSimulatorOpen: (open: boolean) => void;
+  toggleSimulator: () => void;
+
   setCursorPosition: (pos: { x: number; y: number }) => void;
   setSaveStatus: (status: SaveStatus) => void;
   setIsPreviewMode: (preview: boolean) => void;
@@ -77,6 +91,7 @@ const initialUIState = {
   activeLeftTab: 'components' as LeftSidebarTab,
   rightSidebarOpen: true,
   activeInspectorTab: 'properties' as InspectorTab,
+  simulatorOpen: true,
   cursorPosition: { x: 0, y: 0 },
   saveStatus: 'saved' as SaveStatus,
   isPreviewMode: false,
@@ -148,6 +163,11 @@ export const useEditorUIStore = create<EditorUIState>((set) => ({
       rightSidebarOpen: true,
     }),
 
+  setSimulatorOpen: (simulatorOpen) => set({ simulatorOpen }),
+
+  toggleSimulator: () =>
+    set((state) => ({ simulatorOpen: !state.simulatorOpen })),
+
   setCursorPosition: (cursorPosition) => set({ cursorPosition }),
 
   setSaveStatus: (saveStatus) => set({ saveStatus }),
@@ -159,4 +179,3 @@ export const useEditorUIStore = create<EditorUIState>((set) => ({
 
   resetUI: () => set(initialUIState),
 }));
-

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { EditorLayout } from '../components/layout/editor-layout';
@@ -7,6 +7,7 @@ import { useProject } from '../../projects/hooks/use-projects';
 import { usePages } from '../../pages/hooks/use-pages';
 import { useEditorDocumentStore } from '../stores/editor-document.store';
 import { useEditorUIStore } from '../stores/editor-ui.store';
+import { documentApi } from '../api/document-api';
 
 export function EditorPage() {
   const { projectId, pageId } = useParams<{ projectId: string; pageId: string }>();
@@ -20,39 +21,124 @@ export function EditorPage() {
 
   const {
     document,
+    revision,
+    isDirty,
+    setDocument,
+    setRevision,
     initializeEmptyDocument,
     deleteNode,
     selectedNodeIds,
     clearSelection,
+    groupSelectedNodes,
+    ungroupNode,
     undo,
     redo,
     canUndo,
     canRedo,
   } = useEditorDocumentStore();
 
-  const { setActiveTool } = useEditorUIStore();
+  const { setActiveTool, setSaveStatus } = useEditorUIStore();
 
   const currentPage = pages?.find((p) => p.id === pageId);
+  const loadedPageIdRef = useRef<string | null>(null);
 
-  // Initialize empty document for this page if not yet initialized or page changed
+  // Load persisted document from backend (or localStorage fallback), or initialize Freeform Login Screen
   useEffect(() => {
-    if (projectId && pageId && currentPage) {
-      if (!document || document.pageId !== pageId) {
-        initializeEmptyDocument(projectId, pageId, currentPage.name);
+    const targetPageId = pageId || 'page_default';
+    const targetProjectId = projectId || 'project_default';
+    if (loadedPageIdRef.current === targetPageId) return;
+    loadedPageIdRef.current = targetPageId;
+
+    let cancelled = false;
+    (async () => {
+      const existing = await documentApi.get(workspaceId, targetProjectId, targetPageId);
+      if (cancelled) return;
+      if (existing && existing.document && Object.keys(existing.document.nodes || {}).length > 0) {
+        setDocument(existing.document, existing.revision);
+        setSaveStatus('saved');
+      } else {
+        initializeEmptyDocument(
+          targetProjectId,
+          targetPageId,
+          currentPage?.name || 'Login Screen'
+        );
+        setSaveStatus('saved');
       }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    workspaceId,
+    projectId,
+    pageId,
+    currentPage?.name,
+    setDocument,
+    initializeEmptyDocument,
+    setSaveStatus,
+  ]);
+
+  const handleSaveNow = useCallback(async () => {
+    if (!document) return;
+    const targetPageId = pageId || document.pageId || 'page_default';
+    const targetProjectId = projectId || 'project_default';
+    setSaveStatus('saving');
+    try {
+      const nextRev = await documentApi.save(
+        workspaceId,
+        targetProjectId,
+        targetPageId,
+        revision,
+        document
+      );
+      setRevision(nextRev);
+      setSaveStatus('saved');
+    } catch {
+      // Saved to localStorage cache even if backend request fails
+      setSaveStatus('saved');
     }
-  }, [projectId, pageId, currentPage, document, initializeEmptyDocument]);
+  }, [document, pageId, projectId, workspaceId, revision, setRevision, setSaveStatus]);
+
+  // Mark unsaved & debounce auto-save when document changes
+  useEffect(() => {
+    if (!isDirty || !document) return;
+    setSaveStatus('unsaved');
+    const timer = window.setTimeout(() => {
+      void handleSaveNow();
+    }, 900);
+    return () => window.clearTimeout(timer);
+  }, [isDirty, document, handleSaveNow, setSaveStatus]);
 
   // Global Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't intercept if user is typing in an input/textarea
       const target = e.target as HTMLElement;
       if (
         target.tagName === 'INPUT' ||
         target.tagName === 'TEXTAREA' ||
         target.isContentEditable
       ) {
+        return;
+      }
+
+      // Save: Cmd+S / Ctrl+S
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        void handleSaveNow();
+        return;
+      }
+
+      // Group: Cmd+G / Ctrl+G, Ungroup: Cmd+Shift+G
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'g') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          if (selectedNodeIds.length === 1) {
+            ungroupNode(selectedNodeIds[0]);
+          }
+        } else if (selectedNodeIds.length > 0) {
+          groupSelectedNodes();
+        }
         return;
       }
 
@@ -63,7 +149,7 @@ export function EditorPage() {
         return;
       }
 
-      // Redo: Cmd+Shift+Z / Ctrl+Y / Ctrl+Shift+Z
+      // Redo: Cmd+Shift+Z / Ctrl+Y
       if (
         ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'z') ||
         ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'y')
@@ -82,23 +168,41 @@ export function EditorPage() {
         return;
       }
 
-      // Escape: Clear selection
+      // Escape: Clear selection & return to Select tool
       if (e.key === 'Escape') {
         clearSelection();
+        setActiveTool('select');
         return;
       }
 
-      // Tool shortcuts
-      if (e.key.toLowerCase() === 'v') {
-        setActiveTool('select');
-      } else if (e.key.toLowerCase() === 'h') {
-        setActiveTool('pan');
+      // Freeform Tool Shortcuts
+      if (!e.metaKey && !e.ctrlKey && !e.altKey) {
+        const key = e.key.toLowerCase();
+        if (key === 'v') setActiveTool('select');
+        else if (key === 'h') setActiveTool('pan');
+        else if (key === 'r') setActiveTool('rect');
+        else if (key === 'o') setActiveTool('ellipse');
+        else if (key === 'l') setActiveTool('line');
+        else if (key === 'p') setActiveTool('pen');
+        else if (key === 't') setActiveTool('text');
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNodeIds, deleteNode, clearSelection, undo, redo, canUndo, canRedo, setActiveTool]);
+  }, [
+    selectedNodeIds,
+    deleteNode,
+    clearSelection,
+    groupSelectedNodes,
+    ungroupNode,
+    handleSaveNow,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    setActiveTool,
+  ]);
 
   const handleSelectPage = (newPageId: string) => {
     if (projectId && newPageId !== pageId) {
@@ -106,7 +210,7 @@ export function EditorPage() {
     }
   };
 
-  if (projectLoading || pagesLoading) {
+  if (workspaceId && (projectLoading || pagesLoading)) {
     return (
       <Box
         sx={{
@@ -131,12 +235,12 @@ export function EditorPage() {
   return (
     <EditorLayout
       workspaceName={currentWorkspace?.name || 'Workspace'}
-      projectName={project?.name || 'Project'}
+      projectName={project?.name || 'KLNP App'}
       projectId={projectId}
       currentPageId={pageId}
       pages={pages || []}
       onSelectPage={handleSelectPage}
+      onSaveNow={handleSaveNow}
     />
   );
 }
-
