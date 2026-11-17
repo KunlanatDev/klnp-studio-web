@@ -28,19 +28,19 @@ import { BUILTIN_COMPONENTS, ComponentMeta } from '../../../registry/component-r
 import { useEditorDocumentStore } from '../../../stores/editor-document.store';
 import type { BuiltinComponentType, ComponentCategory } from '@klnp/contracts';
 
-const ICON_MAP: Record<string, React.ReactElement> = {
-  ViewQuiltRounded: <ViewQuiltRoundedIcon />,
-  FolderOutlined: <FolderOutlinedIcon />,
-  HeightRounded: <HeightRoundedIcon />,
-  HorizontalRuleRounded: <HorizontalRuleRoundedIcon />,
-  TextFieldsRounded: <TextFieldsRoundedIcon />,
-  SmartButtonRounded: <SmartButtonRoundedIcon />,
-  ImageRounded: <ImageRoundedIcon />,
-  StarOutlineRounded: <StarOutlineRoundedIcon />,
-  InputRounded: <InputRoundedIcon />,
-  CheckBoxOutlined: <CheckBoxOutlinedIcon />,
-  ToggleOnRounded: <ToggleOnRoundedIcon />,
-  FormatListBulletedRounded: <FormatListBulletedRoundedIcon />,
+const ICON_COMPONENT_MAP: Record<string, React.ComponentType<{ sx?: any }>> = {
+  ViewQuiltRounded: ViewQuiltRoundedIcon,
+  FolderOutlined: FolderOutlinedIcon,
+  HeightRounded: HeightRoundedIcon,
+  HorizontalRuleRounded: HorizontalRuleRoundedIcon,
+  TextFieldsRounded: TextFieldsRoundedIcon,
+  SmartButtonRounded: SmartButtonRoundedIcon,
+  ImageRounded: ImageRoundedIcon,
+  StarOutlineRounded: StarOutlineRoundedIcon,
+  InputRounded: InputRoundedIcon,
+  CheckBoxOutlined: CheckBoxOutlinedIcon,
+  ToggleOnRounded: ToggleOnRoundedIcon,
+  FormatListBulletedRounded: FormatListBulletedRoundedIcon,
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -126,58 +126,62 @@ export function ComponentsPanel() {
             </Typography>
 
             <Grid container spacing={1}>
-              {items.map((comp: ComponentMeta) => (
-                <Grid item xs={6} key={comp.componentId}>
-                  <Tooltip title={comp.description || comp.displayName} arrow placement="top">
-                    <Card
-                      variant="outlined"
-                      sx={{
-                        borderRadius: 2,
-                        borderColor: 'divider',
-                        transition: 'all 0.15s ease-in-out',
-                        '&:hover': {
-                          borderColor: 'primary.main',
-                          boxShadow: '0 2px 8px rgba(37, 99, 235, 0.12)',
-                          transform: 'translateY(-1px)',
-                        },
-                      }}
-                    >
-                      <CardActionArea
-                        onClick={() => handleAddComponent(comp.type)}
-                        sx={{ p: 1.25, textAlign: 'center' }}
+              {items.map((comp: ComponentMeta) => {
+                const IconComponent = ICON_COMPONENT_MAP[comp.iconName] || ViewQuiltRoundedIcon;
+
+                return (
+                  <Grid item xs={6} key={comp.componentId}>
+                    <Tooltip title={comp.description || comp.displayName} arrow placement="top">
+                      <Card
+                        variant="outlined"
+                        sx={{
+                          borderRadius: 2,
+                          borderColor: 'divider',
+                          transition: 'all 0.15s ease-in-out',
+                          '&:hover': {
+                            borderColor: 'primary.main',
+                            boxShadow: '0 2px 8px rgba(37, 99, 235, 0.12)',
+                            transform: 'translateY(-1px)',
+                          },
+                        }}
                       >
-                        <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              color: 'primary.main',
-                              mb: 0.5,
-                              '& .MuiSvgIcon-root': { fontSize: 24 },
-                            }}
-                          >
-                            {ICON_MAP[comp.iconName] || <ViewQuiltRoundedIcon />}
-                          </Box>
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              fontWeight: 600,
-                              display: 'block',
-                              color: 'text.primary',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            {comp.displayName}
-                          </Typography>
-                        </CardContent>
-                      </CardActionArea>
-                    </Card>
-                  </Tooltip>
-                </Grid>
-              ))}
+                        <CardActionArea
+                          onClick={() => handleAddComponent(comp.type)}
+                          sx={{ p: 1.25, textAlign: 'center' }}
+                        >
+                          <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: 'primary.main',
+                                mb: 0.5,
+                                '& .MuiSvgIcon-root': { fontSize: 24 },
+                              }}
+                            >
+                              <IconComponent sx={{ fontSize: 24 }} />
+                            </Box>
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                fontWeight: 600,
+                                display: 'block',
+                                color: 'text.primary',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {comp.displayName}
+                            </Typography>
+                          </CardContent>
+                        </CardActionArea>
+                      </Card>
+                    </Tooltip>
+                  </Grid>
+                );
+              })}
             </Grid>
           </Box>
         );
