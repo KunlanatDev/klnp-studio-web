@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import {
   QueryClient,
@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { appTheme } from '../theme';
+import { useAuthStore } from '../../features/auth/stores/auth-store';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,6 +23,19 @@ interface Props {
 }
 
 export function AppProviders({ children }: Props) {
+  const initialize = useAuthStore((s) => s.initialize);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    initialize().then((unsub) => {
+      unsubscribe = unsub;
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [initialize]);
+
   return (
     <ThemeProvider theme={appTheme}>
       <CssBaseline />
@@ -33,4 +47,3 @@ export function AppProviders({ children }: Props) {
     </ThemeProvider>
   );
 }
-
