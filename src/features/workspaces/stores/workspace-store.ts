@@ -28,7 +28,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   fetchWorkspaces: async () => {
     set({ loading: true, error: null });
     try {
-      const data = await listWorkspaces();
+      const rawData = await listWorkspaces();
+      const data = Array.isArray(rawData) ? rawData : [];
       const current = get().currentWorkspace;
       let nextCurrent = current;
 
@@ -41,7 +42,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       set({ workspaces: data, currentWorkspace: nextCurrent, loading: false });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to load workspaces';
-      set({ loading: false, error: message });
+      set({ workspaces: [], loading: false, error: message });
     }
   },
 
@@ -49,7 +50,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const newWs = await createWorkspace({ name, slug });
-      const updated = [newWs, ...get().workspaces];
+      const currentList = Array.isArray(get().workspaces) ? get().workspaces : [];
+      const updated = [newWs, ...currentList];
       set({
         workspaces: updated,
         currentWorkspace: newWs,
@@ -67,7 +69,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const updatedWs = await updateWorkspace(id, { name });
-      const updatedList = get().workspaces.map((w) =>
+      const currentList = Array.isArray(get().workspaces) ? get().workspaces : [];
+      const updatedList = currentList.map((w) =>
         w.id === id ? updatedWs : w,
       );
       set({

@@ -47,7 +47,7 @@ export const projectApi = {
     const response = await apiClient.get<{ success: boolean; data: Project[] }>(
       `/workspaces/${workspaceId}/projects${query}`,
     );
-    return response.data.data;
+    return response.data.data ?? [];
   },
 
   get: async (workspaceId: string, projectId: string): Promise<Project> => {

@@ -35,7 +35,7 @@ export const pageApi = {
     const response = await apiClient.get<{ success: boolean; data: Page[] }>(
       `/workspaces/${workspaceId}/projects/${projectId}/pages`,
     );
-    return response.data.data;
+    return response.data.data ?? [];
   },
 
   get: async (workspaceId: string, projectId: string, pageId: string): Promise<Page> => {

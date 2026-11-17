@@ -142,7 +142,7 @@ export function WorkspaceDashboardPage() {
 
   const handleSelectWorkspace = (ws: Workspace) => {
     setCurrentWorkspace(ws);
-    navigate(routes.dashboard);
+    navigate(routes.projects);
   };
 
   const handleLogout = async () => {
@@ -201,11 +201,11 @@ export function WorkspaceDashboardPage() {
         </Alert>
       )}
 
-      {loading && workspaces.length === 0 ? (
+      {loading && (workspaces?.length ?? 0) === 0 ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
           <CircularProgress />
         </Box>
-      ) : workspaces.length === 0 ? (
+      ) : (workspaces?.length ?? 0) === 0 ? (
         <Card sx={{ p: 6, textAlign: 'center', bgcolor: 'background.paper', borderRadius: 2 }}>
           <Typography variant="h6" gutterBottom fontWeight={600}>
             No workspaces found
@@ -223,7 +223,7 @@ export function WorkspaceDashboardPage() {
         </Card>
       ) : (
         <Grid container spacing={3}>
-          {workspaces.map((ws) => (
+          {(workspaces || []).map((ws) => (
             <Grid item xs={12} sm={6} md={4} key={ws.id}>
               <Card
                 sx={{

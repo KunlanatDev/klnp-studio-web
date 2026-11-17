@@ -18,7 +18,7 @@ type ApiResponse<T> = {
 
 export async function listWorkspaces(): Promise<Workspace[]> {
   const result = await apiRequest<ApiResponse<Workspace[]>>('/workspaces');
-  return result.data;
+  return result.data ?? [];
 }
 
 export async function createWorkspace(input: {

@@ -8,6 +8,7 @@ import { DashboardLayout } from '../layouts/dashboard-layout';
 import { HomePage } from '../../features/dashboard/pages/home-page';
 import { ProjectsPage } from '../../features/projects/pages/projects-page';
 import { ProjectDetailPage } from '../../features/projects/pages/project-detail-page';
+import { EditorPage } from '../../features/editor/pages/editor-page';
 import { useAuthStore } from '../../features/auth/stores/auth-store';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
@@ -102,6 +103,16 @@ export function AppRouter() {
         <Route path={routes.projects} element={<ProjectsPage />} />
         <Route path={routes.projectDetail} element={<ProjectDetailPage />} />
       </Route>
+
+      {/* Editor & Visual Canvas Route */}
+      <Route
+        path={routes.canvas}
+        element={
+          <ProtectedRoute>
+            <EditorPage />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Root redirects to workspaces */}
       <Route

@@ -179,7 +179,7 @@ export function ProjectsPage() {
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
           <CircularProgress />
         </Box>
-      ) : projects && projects.length > 0 ? (
+      ) : projects && Array.isArray(projects) && projects.length > 0 ? (
         <Grid container spacing={3}>
           {projects.map((project) => (
             <Grid item xs={12} sm={6} md={4} key={project.id}>

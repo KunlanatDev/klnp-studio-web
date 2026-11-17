@@ -127,7 +127,7 @@ export function DashboardLayout() {
         <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
           <LayersRoundedIcon fontSize="small" color="primary" />
           <Typography variant="caption" fontWeight={600} color="text.primary">
-            MVP 1 · Sprint 1
+            MVP 1 · Sprint 2
           </Typography>
         </Stack>
         <Typography variant="caption" color="text.secondary" display="block">
@@ -174,6 +174,7 @@ export function DashboardLayout() {
             variant="contained"
             size="small"
             startIcon={<AddRoundedIcon />}
+            onClick={() => navigate(routes.projects)}
             sx={{ borderRadius: 2, px: 2 }}
           >
             New Project

@@ -251,7 +251,7 @@ export function ProjectDetailPage() {
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
             <CircularProgress />
           </Box>
-        ) : pages && pages.length > 0 ? (
+        ) : pages && Array.isArray(pages) && pages.length > 0 ? (
           <List disablePadding>
             {pages.map((page, index) => (
               <ListItem
@@ -265,6 +265,24 @@ export function ProjectDetailPage() {
                 }}
                 secondaryAction={
                   <Stack direction="row" spacing={0.5} alignItems="center">
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<EditRoundedIcon fontSize="small" />}
+                      onClick={() => navigate(`/projects/${projectId}/pages/${page.id}`)}
+                      sx={{
+                        borderRadius: 1.5,
+                        textTransform: 'none',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        py: 0.25,
+                        px: 1.25,
+                        mr: 0.5,
+                      }}
+                    >
+                      Open Editor
+                    </Button>
+
                     <Tooltip title="Move up">
                       <span>
                         <IconButton
@@ -340,6 +358,21 @@ export function ProjectDetailPage() {
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
+        <MenuItem
+          onClick={() => {
+            if (selectedPage) {
+              const pid = selectedPage.id;
+              handleMenuClose();
+              navigate(`/projects/${projectId}/pages/${pid}`);
+            }
+          }}
+        >
+          <ListItemIcon>
+            <EditRoundedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="Open in Editor" />
+        </MenuItem>
+
         {selectedPage && !selectedPage.is_home && (
           <MenuItem
             onClick={() => {
